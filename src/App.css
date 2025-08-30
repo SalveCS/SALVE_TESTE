@@ -510,3 +510,43 @@ body {
   outline-offset: 2px;
 }
 
+
+
+html, body {
+  overflow-x: hidden;
+}
+
+/* Garantir que todos os containers não ultrapassem a largura da viewport */
+.container, .max-w-6xl, .max-w-4xl, .max-w-3xl {
+  max-width: 100% !important;
+  overflow-x: hidden;
+}
+
+/* Corrigir imagens que podem causar overflow */
+img, .relative.overflow-hidden {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Corrigir especificamente o componente LazyImage */
+.relative.overflow-hidden {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Garantir que grids sejam responsivos */
+.grid {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .grid.md\\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .grid.md\\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+
