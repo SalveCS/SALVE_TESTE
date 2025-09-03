@@ -194,7 +194,7 @@ function App() {
         {/* Animated Gradient Overlay - Fixed to viewport height */}
         <div className="fixed top-0 left-0 w-full h-screen bg-gradient-to-br from-black/40 via-transparent to-primary/20 pointer-events-none" style={{ zIndex: 1 }}></div>
         
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+        <div className="container mx-auto px-4 relative z-10 text-center text-white max-w-4xl">
           <motion.h1
             className="hero-title text-white mb-6 text-center drop-shadow-2xl"
             initial={{ opacity: 0, y: 30 }}
