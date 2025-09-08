@@ -177,7 +177,7 @@ function App() {
       </header>
 
       {/* Hero Section */}
-      <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <section id="inicio" className="min-h-screen flex items-center justify-center relative">
         {/* Background Image with Parallax Effect */}
         <div 
           ref={parallaxRef}
