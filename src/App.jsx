@@ -8,12 +8,9 @@ import { Leaf, Users, Target, Mail, Phone, Instagram, ChevronDown, Menu, X } fro
 import LazyImage from './components/LazyImage'
 import ScrollReveal from './components/ScrollReveal'
 import ParallaxSection from './components/ParallaxSection'
-import InteractiveMap from './components/InteractiveMap'
-import SEOHead from './components/SEOHead'
 
 import { useScrollProgress, useParallax } from './hooks/useIntersectionObserver'
 import { useServiceWorker } from './hooks/usePWA'
-import { useActiveSection } from './hooks/useActiveSection'
 import { preloadImages, addResourceHints } from './utils/performance'
 import { initAllTracking, trackButtonClick, trackContactClick, trackSectionView } from './utils/analytics'
 
@@ -36,10 +33,6 @@ function App() {
   const scrollProgress = useScrollProgress()
   const [parallaxRef, parallaxOffset] = useParallax(0.5)
   const { isRegistered } = useServiceWorker()
-  
-  // Seções para detectar qual está ativa
-  const sectionIds = ['inicio', 'sobre', 'services', 'sustentabilidade', 'carbono-zero', 'contact']
-  const activeSection = useActiveSection(sectionIds)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -79,23 +72,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Dynamic SEO Head */}
-      <SEOHead 
-        section={activeSection}
-        title={
-          activeSection === 'services' ? 'Nossos Serviços - SALVE Comunicação Sustentável' :
-          activeSection === 'sustentabilidade' ? 'Sustentabilidade e Carbono Zero - SALVE' :
-          activeSection === 'contact' ? 'Contato - SALVE Comunicação Sustentável' :
-          'SALVE - Comunicação Sustentável | Marketing Consciente e Carbono Zero'
-        }
-        description={
-          activeSection === 'services' ? 'Oferecemos Marketing Consciente, Comunicação Corporativa e Branding Verde. Estratégias que respeitam o meio ambiente e promovem práticas responsáveis.' :
-          activeSection === 'sustentabilidade' ? 'Todo trabalho que realizamos é revertido em compensação de carbono. Mais de 400 árvores plantadas como resultado do nosso trabalho.' :
-          activeSection === 'contact' ? 'Entre em contato conosco para transformar sua comunicação. R Professor João Marinho, 95 - São Paulo, SP. Tel: (11) 97975-7763' :
-          'Empresa de comunicação comprometida com o futuro. Todo trabalho que realizamos é revertido em compensação de carbono, plantando árvores e contribuindo para um futuro mais verde.'
-        }
-      />
-      
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left"
@@ -106,10 +82,8 @@ function App() {
       />
       
       {/* Header */}
-      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ease-out ${
-        scrollY > 50 
-          ? 'bg-background/95 backdrop-blur-md shadow-xl border-b border-border/50' 
-          : 'bg-transparent'
+      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrollY > 50 ? 'bg-background/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'
       }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -118,17 +92,16 @@ function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              whileHover={{ scale: 1.05 }}
             >
               <img 
                 src={logoSalveBranco} 
                 alt="SALVE" 
-                className="h-8 md:h-10 w-auto transition-transform duration-300"
+                className="h-8 md:h-10 w-auto"
               />
             </motion.div>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-1">
+            <nav className="hidden md:flex space-x-2">
               {[
                 { name: 'Início', id: 'inicio' },
                 { name: 'Sobre', id: 'sobre' },
@@ -140,19 +113,10 @@ function App() {
                 <motion.a
                   key={item.name}
                   href={`#${item.id}`}
-                  className={`nav-link px-4 py-2 rounded-lg font-medium relative transition-all duration-300 ${
-                    activeSection === item.id
-                      ? 'text-primary bg-primary/10 shadow-sm'
-                      : 'text-foreground hover:text-primary hover:bg-primary/5'
-                  }`}
+                  className="nav-link text-foreground hover:text-primary transition-colors duration-300 font-medium relative"
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ 
-                    scale: 1.05,
-                    transition: { duration: 0.2 }
-                  }}
-                  whileTap={{ scale: 0.95 }}
                   onClick={(e) => {
                     e.preventDefault();
                     const element = document.getElementById(item.id);
@@ -162,88 +126,58 @@ function App() {
                   }}
                 >
                   {item.name}
-                  {/* Indicador de seção ativa */}
-                  {activeSection === item.id && (
-                    <motion.div
-                      className="absolute bottom-0 left-1/2 w-1 h-1 bg-primary rounded-full"
-                      layoutId="activeIndicator"
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ transform: 'translateX(-50%)' }}
-                    />
-                  )}
                 </motion.a>
               ))}
             </nav>
 
             {/* Mobile Menu Button */}
-            <motion.button
-              className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors duration-300"
+            <button
+              className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
             >
-              <motion.div
-                animate={{ rotate: isMenuOpen ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </motion.div>
-            </motion.button>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
             <motion.nav
-              className="md:hidden mt-4 pb-4 bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg"
-              initial={{ opacity: 0, height: 0, y: -20 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="md:hidden mt-4 pb-4"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
             >
-              <div className="p-4 space-y-2">
-                {[
-                  { name: 'Início', id: 'inicio' },
-                  { name: 'Sobre', id: 'sobre' },
-                  { name: 'Serviços', id: 'services' },
-                  { name: 'Sustentabilidade', id: 'sustentabilidade' },
-                  { name: 'Carbono Zero', id: 'carbono-zero' },
-                  { name: 'Contato', id: 'contact' }
-                ].map((item, index) => (
-                  <motion.a
-                    key={item.name}
-                    href={`#${item.id}`}
-                    className={`block py-3 px-4 rounded-lg font-medium transition-all duration-300 ${
-                      activeSection === item.id
-                        ? 'text-primary bg-primary/10 shadow-sm'
-                        : 'text-foreground hover:text-primary hover:bg-primary/5'
-                    }`}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsMenuOpen(false);
-                      const element = document.getElementById(item.id);
-                      if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }}
-                  >
-                    {item.name}
-                  </motion.a>
-                ))}
-              </div>
+              {[
+                { name: 'Início', id: 'inicio' },
+                { name: 'Sobre', id: 'sobre' },
+                { name: 'Serviços', id: 'services' },
+                { name: 'Sustentabilidade', id: 'sustentabilidade' },
+                { name: 'Carbono Zero', id: 'carbono-zero' },
+                { name: 'Contato', id: 'contact' }
+              ].map((item) => (
+                <a
+                  key={item.name}
+                  href={`#${item.id}`}
+                  className="block py-2 text-foreground hover:text-primary transition-colors duration-300"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsMenuOpen(false);
+                    const element = document.getElementById(item.id);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                >
+                  {item.name}
+                </a>
+              ))}
             </motion.nav>
           )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      <section id="inicio" className="min-h-screen flex items-center justify-center relative">
         {/* Background Image with Parallax Effect */}
         <div 
           ref={parallaxRef}
@@ -260,7 +194,7 @@ function App() {
         {/* Animated Gradient Overlay - Fixed to viewport height */}
         <div className="fixed top-0 left-0 w-full h-screen bg-gradient-to-br from-black/40 via-transparent to-primary/20 pointer-events-none" style={{ zIndex: 1 }}></div>
         
-        <div className="container mx-auto px-4 relative z-10 text-center text-white max-w-4xl">
+        <div className="relative z-10 text-center text-white px-4 max-w-6xl mx-auto">
           <motion.h1
             className="hero-title text-white mb-6 text-center drop-shadow-2xl"
             initial={{ opacity: 0, y: 30 }}
@@ -601,9 +535,6 @@ function App() {
           </div>
         </div>
       </section>
-
-      {/* Interactive Map Section */}
-      <InteractiveMap />
 
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-8">
