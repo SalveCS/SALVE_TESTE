@@ -8,9 +8,12 @@ import { Leaf, Users, Target, Mail, Phone, Instagram, ChevronDown, Menu, X } fro
 import LazyImage from './components/LazyImage'
 import ScrollReveal from './components/ScrollReveal'
 import ParallaxSection from './components/ParallaxSection'
-import PWAInstallPrompt from './components/PWAInstallPrompt'
+
+import SEOHead from './components/SEOHead'
+
 import { useScrollProgress, useParallax } from './hooks/useIntersectionObserver'
 import { useServiceWorker } from './hooks/usePWA'
+import { useActiveSection } from './hooks/useActiveSection'
 import { preloadImages, addResourceHints } from './utils/performance'
 import { initAllTracking, trackButtonClick, trackContactClick, trackSectionView } from './utils/analytics'
 
@@ -33,6 +36,10 @@ function App() {
   const scrollProgress = useScrollProgress()
   const [parallaxRef, parallaxOffset] = useParallax(0.5)
   const { isRegistered } = useServiceWorker()
+  
+  // Seções para detectar qual está ativa
+  const sectionIds = ['inicio', 'sobre', 'services', 'sustentabilidade', 'carbono-zero', 'contact']
+  const activeSection = useActiveSection(sectionIds)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -42,7 +49,7 @@ function App() {
     addResourceHints()
     
     // Initialize analytics (replace with actual GA measurement ID)
-    // initAllTracking('G-XXXXXXXXXX')
+    initAllTracking('G-BJ72P2VW3S')
     
     // Preload critical images
     const criticalImages = [
@@ -72,6 +79,23 @@ function App() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Dynamic SEO Head */}
+      <SEOHead 
+        section={activeSection}
+        title={
+          activeSection === 'services' ? 'Nossos Serviços - SALVE Comunicação Sustentável' :
+          activeSection === 'sustentabilidade' ? 'Sustentabilidade e Carbono Zero - SALVE' :
+          activeSection === 'contact' ? 'Contato - SALVE Comunicação Sustentável' :
+          'SALVE - Comunicação Sustentável | Marketing Consciente e Carbono Zero'
+        }
+        description={
+          activeSection === 'services' ? 'Oferecemos Marketing Consciente, Comunicação Corporativa e Branding Verde. Estratégias que respeitam o meio ambiente e promovem práticas responsáveis.' :
+          activeSection === 'sustentabilidade' ? 'Todo trabalho que realizamos é revertido em compensação de carbono. Mais de 400 árvores plantadas como resultado do nosso trabalho.' :
+          activeSection === 'contact' ? 'Entre em contato conosco para transformar sua comunicação. R Professor João Marinho, 95 - São Paulo, SP. Tel: (11) 97975-7763' :
+          'Empresa de comunicação comprometida com o futuro. Todo trabalho que realizamos é revertido em compensação de carbono, plantando árvores e contribuindo para um futuro mais verde.'
+        }
+      />
+      
       {/* Scroll Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left"
@@ -82,8 +106,10 @@ function App() {
       />
       
       {/* Header */}
-      <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-        scrollY > 50 ? 'bg-background/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ease-out ${
+        scrollY > 50 
+          ? 'bg-background/95 backdrop-blur-md shadow-xl border-b border-border/50' 
+          : 'bg-transparent'
       }`}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -92,16 +118,17 @@ function App() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
             >
               <img 
                 src={logoSalveBranco} 
                 alt="SALVE" 
-                className="h-8 md:h-10 w-auto"
+                className="h-8 md:h-10 w-auto transition-transform duration-300"
               />
             </motion.div>
             
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-2">
+            <nav className="hidden md:flex space-x-1">
               {[
                 { name: 'Início', id: 'inicio' },
                 { name: 'Sobre', id: 'sobre' },
@@ -113,10 +140,19 @@ function App() {
                 <motion.a
                   key={item.name}
                   href={`#${item.id}`}
-                  className="nav-link text-foreground hover:text-primary transition-colors duration-300 font-medium relative"
+                  className={`nav-link px-4 py-2 rounded-lg font-medium relative transition-all duration-300 ${
+                    activeSection === item.id
+                      ? 'text-primary bg-primary/10 shadow-sm'
+                      : 'text-foreground hover:text-primary hover:bg-primary/5'
+                  }`}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={(e) => {
                     e.preventDefault();
                     const element = document.getElementById(item.id);
@@ -126,51 +162,81 @@ function App() {
                   }}
                 >
                   {item.name}
+                  {/* Indicador de seção ativa */}
+                  {activeSection === item.id && (
+                    <motion.div
+                      className="absolute bottom-0 left-1/2 w-1 h-1 bg-primary rounded-full"
+                      layoutId="activeIndicator"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ transform: 'translateX(-50%)' }}
+                    />
+                  )}
                 </motion.a>
               ))}
             </nav>
 
             {/* Mobile Menu Button */}
-            <button
-              className="md:hidden"
+            <motion.button
+              className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors duration-300"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              <motion.div
+                animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </motion.div>
+            </motion.button>
           </div>
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
             <motion.nav
-              className="md:hidden mt-4 pb-4"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden mt-4 pb-4 bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg"
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
-              {[
-                { name: 'Início', id: 'inicio' },
-                { name: 'Sobre', id: 'sobre' },
-                { name: 'Serviços', id: 'services' },
-                { name: 'Sustentabilidade', id: 'sustentabilidade' },
-                { name: 'Carbono Zero', id: 'carbono-zero' },
-                { name: 'Contato', id: 'contact' }
-              ].map((item) => (
-                <a
-                  key={item.name}
-                  href={`#${item.id}`}
-                  className="block py-2 text-foreground hover:text-primary transition-colors duration-300"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsMenuOpen(false);
-                    const element = document.getElementById(item.id);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                  }}
-                >
-                  {item.name}
-                </a>
-              ))}
+              <div className="p-4 space-y-2">
+                {[
+                  { name: 'Início', id: 'inicio' },
+                  { name: 'Sobre', id: 'sobre' },
+                  { name: 'Serviços', id: 'services' },
+                  { name: 'Sustentabilidade', id: 'sustentabilidade' },
+                  { name: 'Carbono Zero', id: 'carbono-zero' },
+                  { name: 'Contato', id: 'contact' }
+                ].map((item, index) => (
+                  <motion.a
+                    key={item.name}
+                    href={`#${item.id}`}
+                    className={`block py-3 px-4 rounded-lg font-medium transition-all duration-300 ${
+                      activeSection === item.id
+                        ? 'text-primary bg-primary/10 shadow-sm'
+                        : 'text-foreground hover:text-primary hover:bg-primary/5'
+                    }`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMenuOpen(false);
+                      const element = document.getElementById(item.id);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
+                    {item.name}
+                  </motion.a>
+                ))}
+              </div>
             </motion.nav>
           )}
         </div>
@@ -194,7 +260,7 @@ function App() {
         {/* Animated Gradient Overlay - Fixed to viewport height */}
         <div className="fixed top-0 left-0 w-full h-screen bg-gradient-to-br from-black/40 via-transparent to-primary/20 pointer-events-none" style={{ zIndex: 1 }}></div>
         
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+        <div className="container mx-auto px-4 relative z-10 text-center text-white max-w-4xl">
           <motion.h1
             className="hero-title text-white mb-6 text-center drop-shadow-2xl"
             initial={{ opacity: 0, y: 30 }}
@@ -280,9 +346,7 @@ function App() {
                 Onde propósito <span className="text-gradient">encontra ação</span>
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Somos uma empresa de comunicação comprometida com o futuro. 
-                Todo trabalho que realizamos para nossos clientes é revertido em compensação de carbono, 
-                plantando árvores e contribuindo para um futuro mais verde.
+                Ao escolher a Salve, você está em dia com a sustentabilidade e mostra que performance e responsabilidade podem andar lado a lado. Isso porque cada ação que criamos é pensada para gerar impacto real nos resultados do seu negócio e, ao mesmo tempo, no planeta. Nossa comunicação é estratégica, criativa e responsável, garantindo que sua marca não apenas conquiste relevância, mas também seja lembrada por agir de forma consciente. Trabalhar com a Salve é comunicar com propósito e estar sempre um passo à frente no futuro que queremos construir.
               </p>
             </div>
           </ScrollReveal>
@@ -536,6 +600,161 @@ function App() {
         </div>
       </section>
 
+      {/* Contact Section - Melhorada para substituir o mapa */}
+      <section id="contact" className="section-padding bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10 max-w-6xl">
+          <ScrollReveal direction="up" delay={0.2}>
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">Entre em Contato</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Vamos <span className="text-gradient bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">conversar</span>
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Pronto para transformar sua comunicação? Entre em contato conosco e descubra como podemos ajudar sua marca a crescer de forma sustentável.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Informações de Contato */}
+            <ScrollReveal direction="left" delay={0.4}>
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-2xl font-bold mb-6 text-white">Informações de Contato</h3>
+                  <div className="space-y-6">
+                    <motion.a
+                      href="mailto:salvempresa@gmail.com"
+                      className="flex items-center space-x-4 text-gray-300 hover:text-green-400 transition-colors duration-300 group p-4 rounded-lg hover:bg-white/5"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                        <Mail className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">Email</p>
+                        <p className="text-sm">salvempresa@gmail.com</p>
+                      </div>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="https://wa.me/5511979757763?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20os%20serviços%20da%20SALVE."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-4 text-gray-300 hover:text-green-400 transition-colors duration-300 group p-4 rounded-lg hover:bg-white/5"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                        <Phone className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">WhatsApp</p>
+                        <p className="text-sm">+55 (11) 97975-7763</p>
+                      </div>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="https://instagram.com/salve_cs"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-4 text-gray-300 hover:text-green-400 transition-colors duration-300 group p-4 rounded-lg hover:bg-white/5"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                        <Instagram className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">Instagram</p>
+                        <p className="text-sm">@salve_cs</p>
+                      </div>
+                    </motion.a>
+                    
+                    <div className="flex items-center space-x-4 text-gray-300 p-4 rounded-lg bg-white/5">
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <Target className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">Endereço</p>
+                        <p className="text-sm">R Professor João Marinho, 95 - São Paulo, SP</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-4 text-white">Horário de Atendimento</h4>
+                  <div className="space-y-2 text-gray-300">
+                    <p className="text-sm">Segunda a Sexta: 9h às 18h</p>
+                    <p className="text-sm">Sábado: 9h às 12h</p>
+                    <p className="text-sm">Domingo: Fechado</p>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Call to Action */}
+            <ScrollReveal direction="right" delay={0.6}>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                <h3 className="text-2xl font-bold mb-6 text-white">Pronto para começar?</h3>
+                <p className="text-gray-300 mb-8">
+                  Entre em contato conosco hoje mesmo e descubra como podemos transformar sua comunicação de forma sustentável e eficaz.
+                </p>
+                
+                <div className="space-y-4">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button 
+                      size="lg" 
+                      className="w-full btn-premium text-white font-semibold py-4"
+                      onClick={() => {
+                        trackContactClick('whatsapp', 'contact_section')
+                        window.open('https://wa.me/5511979757763?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20os%20serviços%20da%20SALVE.', '_blank')
+                      }}
+                    >
+                      <Phone className="w-5 h-5 mr-2" />
+                      Falar no WhatsApp
+                    </Button>
+                  </motion.div>
+                  
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="w-full border-white/30 text-white hover:bg-white hover:text-gray-900 font-semibold py-4"
+                      onClick={() => {
+                        trackContactClick('email', 'contact_section')
+                        window.location.href = 'mailto:salvempresa@gmail.com'
+                      }}
+                    >
+                      <Mail className="w-5 h-5 mr-2" />
+                      Enviar Email
+                    </Button>
+                  </motion.div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/20">
+                  <p className="text-sm text-gray-400 text-center">
+                    Resposta garantida em até 24 horas
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-gray-800 text-white py-8">
         <div className="container mx-auto px-4 text-center">
@@ -548,7 +767,7 @@ function App() {
       </footer>
 
       {/* PWA Install Prompt */}
-      {isRegistered && <PWAInstallPrompt />}
+      
     </div>
   )
 }
