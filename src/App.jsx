@@ -1,0 +1,777 @@
+import './App.css'
+import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Button } from './components/ui/button'
+import { Badge } from './components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
+import { Leaf, Users, Target, Mail, Phone, Instagram, ChevronDown, Menu, X } from 'lucide-react'
+import LazyImage from './components/LazyImage'
+import ScrollReveal from './components/ScrollReveal'
+import ParallaxSection from './components/ParallaxSection'
+
+import SEOHead from './components/SEOHead'
+
+import { useScrollProgress, useParallax } from './hooks/useIntersectionObserver'
+import { useServiceWorker } from './hooks/usePWA'
+import { useActiveSection } from './hooks/useActiveSection'
+import { preloadImages, addResourceHints } from './utils/performance'
+import { initAllTracking, trackButtonClick, trackContactClick, trackSectionView } from './utils/analytics'
+
+// Import images
+import logoSalveBranco from './assets/images/logo_salve_branco.png'
+import heroImage from './assets/images/hero_dark_leaves.jpg'
+import sustainabilityImage1 from './assets/images/s_170525.png'
+import sustainabilityImage2 from './assets/images/s_240525.png'
+import sustainabilityImage3 from './assets/images/s_290525.png'
+import carbonoLogo from './assets/images/carbono_neutro_logo_f.png'
+import florestaSustentavel from './assets/images/floresta_sustentavel.jpg'
+import teamImage from './assets/images/team-communication.jpg'
+import birdImage from './assets/images/bird_image.jpg' // Nova imagem do pássaro
+import foto1 from './assets/images/Foto1.png' // Nova imagem para substituir as 3 imagens
+import foto2 from './assets/images/Foto2.jpeg' // Nova imagem para a seção de compromisso
+
+function App() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+  const scrollProgress = useScrollProgress()
+  const [parallaxRef, parallaxOffset] = useParallax(0.5)
+  const { isRegistered } = useServiceWorker()
+  
+  // Seções para detectar qual está ativa
+  const sectionIds = ['inicio', 'sobre', 'services', 'sustentabilidade', 'carbono-zero', 'contact']
+  const activeSection = useActiveSection(sectionIds)
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handleScroll)
+    
+    // Add resource hints for performance
+    addResourceHints()
+    
+    // Initialize analytics (replace with actual GA measurement ID)
+    initAllTracking('G-BJ72P2VW3S')
+    
+    // Preload critical images
+    const criticalImages = [
+      logoSalveBranco,
+      heroImage,
+      teamImage
+    ]
+    
+    preloadImages(criticalImages).catch(console.error)
+    
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const fadeInUp = {
+    initial: { opacity: 0, y: 60 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
+  }
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Dynamic SEO Head */}
+      <SEOHead 
+        section={activeSection}
+        title={
+          activeSection === 'services' ? 'Nossos Serviços - SALVE Comunicação Sustentável' :
+          activeSection === 'sustentabilidade' ? 'Sustentabilidade e Carbono Zero - SALVE' :
+          activeSection === 'contact' ? 'Contato - SALVE Comunicação Sustentável' :
+          'SALVE - Comunicação Sustentável | Marketing Consciente e Carbono Zero'
+        }
+        description={
+          activeSection === 'services' ? 'Oferecemos Marketing Consciente, Comunicação Corporativa e Branding Verde. Estratégias que respeitam o meio ambiente e promovem práticas responsáveis.' :
+          activeSection === 'sustentabilidade' ? 'Todo trabalho que realizamos é revertido em compensação de carbono. Mais de 400 árvores plantadas como resultado do nosso trabalho.' :
+          activeSection === 'contact' ? 'Entre em contato conosco para transformar sua comunicação. R Professor João Marinho, 95 - São Paulo, SP. Tel: (11) 97975-7763' :
+          'Empresa de comunicação comprometida com o futuro. Todo trabalho que realizamos é revertido em compensação de carbono, plantando árvores e contribuindo para um futuro mais verde.'
+        }
+      />
+      
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left"
+        style={{ scaleX: scrollProgress }}
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: scrollProgress }}
+        transition={{ duration: 0.1 }}
+      />
+      
+      {/* Header */}
+      <header className={`fixed top-0 w-full z-50 transition-all duration-500 ease-out ${
+        scrollY > 50 
+          ? 'bg-background/95 backdrop-blur-md shadow-xl border-b border-border/50' 
+          : 'bg-transparent'
+      }`}>
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <motion.div 
+              className="flex items-center"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <img 
+                src={logoSalveBranco} 
+                alt="SALVE" 
+                className="h-8 md:h-10 w-auto transition-transform duration-300"
+              />
+            </motion.div>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-1">
+              {[
+                { name: 'Início', id: 'inicio' },
+                { name: 'Sobre', id: 'sobre' },
+                { name: 'Serviços', id: 'services' },
+                { name: 'Sustentabilidade', id: 'sustentabilidade' },
+                { name: 'Carbono Zero', id: 'carbono-zero' },
+                { name: 'Contato', id: 'contact' }
+              ].map((item, index) => (
+                <motion.a
+                  key={item.name}
+                  href={`#${item.id}`}
+                  className={`nav-link px-4 py-2 rounded-lg font-medium relative transition-all duration-300 ${
+                    activeSection === item.id
+                      ? 'text-primary bg-primary/10 shadow-sm'
+                      : 'text-foreground hover:text-primary hover:bg-primary/5'
+                  }`}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    transition: { duration: 0.2 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const element = document.getElementById(item.id);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                >
+                  {item.name}
+                  {/* Indicador de seção ativa */}
+                  {activeSection === item.id && (
+                    <motion.div
+                      className="absolute bottom-0 left-1/2 w-1 h-1 bg-primary rounded-full"
+                      layoutId="activeIndicator"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ transform: 'translateX(-50%)' }}
+                    />
+                  )}
+                </motion.a>
+              ))}
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <motion.button
+              className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors duration-300"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <motion.div
+                animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </motion.div>
+            </motion.button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <motion.nav
+              className="md:hidden mt-4 pb-4 bg-background/95 backdrop-blur-md rounded-lg border border-border/50 shadow-lg"
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+            >
+              <div className="p-4 space-y-2">
+                {[
+                  { name: 'Início', id: 'inicio' },
+                  { name: 'Sobre', id: 'sobre' },
+                  { name: 'Serviços', id: 'services' },
+                  { name: 'Sustentabilidade', id: 'sustentabilidade' },
+                  { name: 'Carbono Zero', id: 'carbono-zero' },
+                  { name: 'Contato', id: 'contact' }
+                ].map((item, index) => (
+                  <motion.a
+                    key={item.name}
+                    href={`#${item.id}`}
+                    className={`block py-3 px-4 rounded-lg font-medium transition-all duration-300 ${
+                      activeSection === item.id
+                        ? 'text-primary bg-primary/10 shadow-sm'
+                        : 'text-foreground hover:text-primary hover:bg-primary/5'
+                    }`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                    whileHover={{ x: 5, transition: { duration: 0.2 } }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsMenuOpen(false);
+                      const element = document.getElementById(item.id);
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }}
+                  >
+                    {item.name}
+                  </motion.a>
+                ))}
+              </div>
+            </motion.nav>
+          )}
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Background Image with Parallax Effect */}
+        <div 
+          ref={parallaxRef}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ 
+            backgroundImage: `url(${heroImage})`,
+            transform: `translateY(${parallaxOffset}px)`
+          }}
+        ></div>
+        
+        {/* Dark Overlay for Better Contrast - Fixed to viewport height */}
+        {/* <div className="fixed top-0 left-0 w-full h-screen bg-black/60 pointer-events-none" style={{ zIndex: 1 }}></div> */}
+        
+        {/* Animated Gradient Overlay - Fixed to viewport height */}
+        <div className="fixed top-0 left-0 w-full h-screen bg-gradient-to-br from-black/40 via-transparent to-primary/20 pointer-events-none" style={{ zIndex: 1 }}></div>
+        
+        <div className="container mx-auto px-4 relative z-10 text-center text-white max-w-4xl">
+          <motion.h1
+            className="hero-title text-white mb-6 text-center drop-shadow-2xl"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            Comunicação que <br />
+            <span className="text-gradient bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent drop-shadow-lg">transforma</span>
+          </motion.h1>     
+          <motion.p
+            className="text-xl md:text-2xl mb-8 opacity-90"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            A união entre qualidade e inovação
+          </motion.p>
+          
+          <motion.div
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button 
+                size="lg" 
+                className="btn-premium magnetic text-white font-semibold px-8 py-3 min-w-[180px] relative overflow-hidden"
+                onClick={() => {
+                  trackButtonClick('nossos_servicos', 'hero')
+                  const element = document.getElementById('services');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
+                Nossos Serviços
+              </Button>
+            </motion.div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button 
+                size="lg" 
+                className="bg-white/20 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-primary font-semibold px-8 py-3 min-w-[180px] transition-all duration-300"
+                onClick={() => {
+                  trackButtonClick('fale_conosco', 'hero')
+                  const element = document.getElementById('contact');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+              >
+                Fale Conosco
+              </Button>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* About Section */}
+      <section id="sobre" className="section-padding bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <ScrollReveal direction="up" delay={0.2}>
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-primary/10 text-primary">Quem Somos</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Onde propósito <span className="text-gradient">encontra ação</span>
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Ao escolher a Salve, você está em dia com a sustentabilidade e mostra que performance e responsabilidade podem andar lado a lado. Isso porque cada ação que criamos é pensada para gerar impacto real nos resultados do seu negócio e, ao mesmo tempo, no planeta. Nossa comunicação é estratégica, criativa e responsável, garantindo que sua marca não apenas conquiste relevância, mas também seja lembrada por agir de forma consciente. Trabalhar com a Salve é comunicar com propósito e estar sempre um passo à frente no futuro que queremos construir.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <ScrollReveal direction="left" delay={0.4}>
+              <LazyImage
+                src={teamImage}
+                alt="Equipe SALVE"
+                className="rounded-2xl shadow-2xl hover-lift image-hover h-80"
+              />
+            </ScrollReveal>
+
+            <div className="space-y-6">
+              <ScrollReveal direction="right" delay={0.6}>
+                <p className="text-lg text-muted-foreground">
+                  Nosso propósito é utilizar a comunicação e o marketing de forma consciente e responsável, 
+                  promovendo um mundo mais equilibrado, onde as pessoas e o planeta possam prosperar juntos.
+                </p>
+              </ScrollReveal>
+              
+              <ScrollReveal direction="right" delay={0.8}>
+                <p className="text-lg text-muted-foreground">
+                  Desenvolvemos soluções de comunicação e marketing que sejam conscientes, criativas e inovadoras, 
+                  visando o bem-estar das pessoas e do planeta. Com mais de 20 anos de experiência no mercado.
+                </p>
+              </ScrollReveal>
+
+              <ScrollReveal direction="right" delay={1.0}>
+                <div className="flex flex-wrap gap-3">
+                  <Badge variant="secondary">Comunicação Sustentável</Badge>
+                  <Badge variant="secondary">Compensação de Carbono</Badge>
+                  <Badge variant="secondary">Responsabilidade Social</Badge>
+                </div>
+              </ScrollReveal>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" className="section-padding bg-muted/30">
+        <div className="container mx-auto max-w-6xl">
+          <ScrollReveal direction="up" delay={0.2}>
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-secondary/20 text-secondary-foreground">Nossos Serviços</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                O que <span className="text-gradient">oferecemos</span>
+              </h2>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <Leaf className="w-12 h-12 text-primary" />,
+                title: "Marketing Consciente",
+                description: "Estratégias de marketing que respeitam o meio ambiente e promovem práticas responsáveis."
+              },
+              {
+                icon: <Users className="w-12 h-12 text-primary" />,
+                title: "Comunicação Corporativa",
+                description: "Desenvolvemos a comunicação interna e externa da sua empresa com foco em responsabilidade social."
+              },
+              {
+                icon: <Target className="w-12 h-12 text-primary" />,
+                title: "Branding Verde",
+                description: "Construção de marca com valores ambientais e sociais que conectam com o público consciente."
+              }
+            ].map((service, index) => (
+              <ScrollReveal 
+                key={index}
+                direction="up" 
+                delay={0.4 + (index * 0.2)}
+              >
+                <motion.div
+                  className="premium-card card-hover p-8 rounded-3xl"
+                  whileHover={{ 
+                    y: -10,
+                    transition: { duration: 0.3 }
+                  }}
+                >
+                  <div className="text-center">
+                    <motion.div 
+                      className="icon-container w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center"
+                      whileHover={{ 
+                        rotate: 360,
+                        transition: { duration: 0.6 }
+                      }}
+                    >
+                      {service.icon}
+                    </motion.div>
+                    <h3 className="text-xl font-bold mb-4 text-gray-800">
+                      {service.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {service.description}
+                    </p>
+                  </div>
+                </motion.div>
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Sustainability Section */}
+      <section id="sustentabilidade" className="section-padding bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <motion.div
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <motion.div variants={fadeInUp}>
+                <Badge className="mb-4 bg-primary/10 text-primary">Sustentabilidade</Badge>
+                <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                  A beleza da <span className="text-gradient">natureza</span>
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  Todo trabalho que realizamos para nossos clientes é revertido em compensação de carbono. 
+                  Cada projeto gera o plantio de árvores, contribuindo para a neutralização das emissões e para um futuro mais verde.
+                </p>
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <p className="text-lg text-muted-foreground">
+                  Investimos em projetos de reflorestamento, proteção de florestas existentes e apoio a iniciativas de energia limpa, 
+                  alcançando assim a neutralização de carbono.
+                </p>
+              </motion.div>
+            </motion.div>
+            <ScrollReveal direction="right" delay={0.4}>
+              <div className="flex justify-center">
+                <LazyImage
+                  src={foto1}
+                  alt="Sustentabilidade - Cuidado com a natureza"
+                  className="rounded-2xl shadow-lg hover-lift image-hover object-cover object-center w-full max-w-md h-96 mx-auto block"
+                />
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Carbon Zero Section */}
+      <section id="carbono-zero" className="section-padding bg-white"> {/* Alterado bg-muted/30 para bg-white */}
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <ScrollReveal direction="left" delay={0.4}>
+              <LazyImage
+                src={foto2}
+                alt="Compromisso com o planeta"
+                className="rounded-2xl shadow-2xl hover-lift image-hover h-80 object-cover object-top mx-auto block"
+              />
+            </ScrollReveal>
+            <motion.div
+              variants={staggerContainer}
+              initial="initial"
+              whileInView="animate"
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <motion.div variants={fadeInUp}>
+                <Badge className="mb-4 bg-secondary/20 text-secondary-foreground">Carbono Zero</Badge>
+                <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                  Nosso compromisso com <span className="text-gradient">o planeta</span>
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                  Cada projeto que desenvolvemos contribui para um futuro mais consciente. 
+                  Nosso trabalho gera impacto positivo real no meio ambiente.
+                </p>
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <div className="flex items-center gap-4 mt-6">
+                  <img src={carbonoLogo} alt="Carbono Neutro" className="h-16 w-auto" />
+                  <div>
+                    <p className="text-5xl font-bold text-primary">+ de 400</p>
+                    <p className="text-muted-foreground">Árvores plantadas</p>
+                    <p className="text-muted-foreground">como resultado do nosso trabalho</p>
+                  </div>
+                </div>
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <h3 className="text-2xl font-bold mt-8 mb-4">Certificação Carbono Zero</h3>
+                <p className="text-lg text-muted-foreground">
+                  Nossos projetos de comunicação são desenvolvidos com práticas conscientes, 
+                  contribuindo para a neutralização de carbono e o plantio de árvores nativas.
+                </p>
+              </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="section-padding bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <ScrollReveal direction="up" delay={0.2}>
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-primary/10 text-primary">Contato</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Vamos <span className="text-gradient">conversar</span>
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Pronto para transformar sua comunicação? Entre em contato conosco.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <ScrollReveal direction="up" delay={0.4}>
+              <Card className="contact-card p-6 text-center">
+                <CardHeader className="flex flex-col items-center">
+                  <Mail className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle className="text-xl font-bold">Email</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">salvempresa@gmail.com</p>
+                  <a href="mailto:salvempresa@gmail.com" className="text-primary hover:underline mt-2 block">Enviar Email</a>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.6}>
+              <Card className="contact-card p-6 text-center">
+                <CardHeader className="flex flex-col items-center">
+                  <Phone className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle className="text-xl font-bold">Telefone</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">+55 (11) 97975-7763</p>
+                  <a href="https://wa.me/5511979757763?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20os%20serviços%20da%20SALVE." target="_blank" rel="noopener noreferrer" className="text-primary hover:underline mt-2 block">Ligar Agora</a>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
+            <ScrollReveal direction="up" delay={0.8}>
+              <Card className="contact-card p-6 text-center">
+                <CardHeader className="flex flex-col items-center">
+                  <Instagram className="w-12 h-12 text-primary mb-4" />
+                  <CardTitle className="text-xl font-bold">Instagram</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">salve_cs</p>
+                  <a href="https://instagram.com/salve_cs" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline mt-2 block">Visitar Perfil</a>
+                </CardContent>
+              </Card>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section - Melhorada para substituir o mapa */}
+      <section id="contact" className="section-padding bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10 max-w-6xl">
+          <ScrollReveal direction="up" delay={0.2}>
+            <div className="text-center mb-16">
+              <Badge className="mb-4 bg-primary/20 text-primary border-primary/30">Entre em Contato</Badge>
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                Vamos <span className="text-gradient bg-gradient-to-r from-green-400 to-green-600 bg-clip-text text-transparent">conversar</span>
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Pronto para transformar sua comunicação? Entre em contato conosco e descubra como podemos ajudar sua marca a crescer de forma sustentável.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-start">
+            {/* Informações de Contato */}
+            <ScrollReveal direction="left" delay={0.4}>
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-2xl font-bold mb-6 text-white">Informações de Contato</h3>
+                  <div className="space-y-6">
+                    <motion.a
+                      href="mailto:salvempresa@gmail.com"
+                      className="flex items-center space-x-4 text-gray-300 hover:text-green-400 transition-colors duration-300 group p-4 rounded-lg hover:bg-white/5"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                        <Mail className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">Email</p>
+                        <p className="text-sm">salvempresa@gmail.com</p>
+                      </div>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="https://wa.me/5511979757763?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20os%20serviços%20da%20SALVE."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-4 text-gray-300 hover:text-green-400 transition-colors duration-300 group p-4 rounded-lg hover:bg-white/5"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                        <Phone className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">WhatsApp</p>
+                        <p className="text-sm">+55 (11) 97975-7763</p>
+                      </div>
+                    </motion.a>
+                    
+                    <motion.a
+                      href="https://instagram.com/salve_cs"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-4 text-gray-300 hover:text-green-400 transition-colors duration-300 group p-4 rounded-lg hover:bg-white/5"
+                      whileHover={{ x: 5 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center group-hover:bg-primary/30 transition-colors duration-300">
+                        <Instagram className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">Instagram</p>
+                        <p className="text-sm">@salve_cs</p>
+                      </div>
+                    </motion.a>
+                    
+                    <div className="flex items-center space-x-4 text-gray-300 p-4 rounded-lg bg-white/5">
+                      <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <Target className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-white">Endereço</p>
+                        <p className="text-sm">R Professor João Marinho, 95 - São Paulo, SP</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-lg font-semibold mb-4 text-white">Horário de Atendimento</h4>
+                  <div className="space-y-2 text-gray-300">
+                    <p className="text-sm">Segunda a Sexta: 9h às 18h</p>
+                    <p className="text-sm">Sábado: 9h às 12h</p>
+                    <p className="text-sm">Domingo: Fechado</p>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* Call to Action */}
+            <ScrollReveal direction="right" delay={0.6}>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                <h3 className="text-2xl font-bold mb-6 text-white">Pronto para começar?</h3>
+                <p className="text-gray-300 mb-8">
+                  Entre em contato conosco hoje mesmo e descubra como podemos transformar sua comunicação de forma sustentável e eficaz.
+                </p>
+                
+                <div className="space-y-4">
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button 
+                      size="lg" 
+                      className="w-full btn-premium text-white font-semibold py-4"
+                      onClick={() => {
+                        trackContactClick('whatsapp', 'contact_section')
+                        window.open('https://wa.me/5511979757763?text=Olá!%20Gostaria%20de%20mais%20informações%20sobre%20os%20serviços%20da%20SALVE.', '_blank')
+                      }}
+                    >
+                      <Phone className="w-5 h-5 mr-2" />
+                      Falar no WhatsApp
+                    </Button>
+                  </motion.div>
+                  
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      className="w-full border-white/30 text-white hover:bg-white hover:text-gray-900 font-semibold py-4"
+                      onClick={() => {
+                        trackContactClick('email', 'contact_section')
+                        window.location.href = 'mailto:salvempresa@gmail.com'
+                      }}
+                    >
+                      <Mail className="w-5 h-5 mr-2" />
+                      Enviar Email
+                    </Button>
+                  </motion.div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/20">
+                  <p className="text-sm text-gray-400 text-center">
+                    Resposta garantida em até 24 horas
+                  </p>
+                </div>
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <p>&copy; {new Date().getFullYear()} SALVE. Todos os direitos reservados.</p>
+          <div className="flex justify-center space-x-4 mt-4">
+            <a href="/politica-de-privacidade.html" className="text-gray-400 hover:text-white">Política de Privacidade</a>
+            <a href="/termos-de-uso.html" className="text-gray-400 hover:text-white">Termos de Uso</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* PWA Install Prompt */}
+      
+    </div>
+  )
+}
+
+export default App
+
+
