@@ -2,19 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
-import viteImagemin from 'vite-plugin-imagemin'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(), 
     tailwindcss(),
-    viteImagemin({
-      gifsicle: { optimizationLevel: 7 },
-      mozjpeg: { quality: 85 },
-      pngquant: { quality: [0.65, 0.8] },
-      webp: { quality: 85 },
-    }),
   ],
   resolve: {
     alias: {
