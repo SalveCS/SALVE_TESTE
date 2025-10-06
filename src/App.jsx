@@ -16,7 +16,7 @@ import { initAllTracking, trackButtonClick, trackContactClick, trackSectionView 
 
 // Import images
 import logoSalveBranco from './assets/images/logo_salve_branco.png'
-import heroImage from './assets/images/Fundo8.jpg'
+import heroImage from './assets/images/FFF99.png'
 import sustainabilityImage1 from './assets/images/s_170525.png'
 import sustainabilityImage2 from './assets/images/s_240525.png'
 import sustainabilityImage3 from './assets/images/s_290525.png'
