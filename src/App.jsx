@@ -132,17 +132,18 @@ function App() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden"
+              className="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors duration-300"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menu de navegação"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMenuOpen ? <X size={24} className="text-foreground" /> : <Menu size={24} className="text-foreground" />}
             </button>
           </div>
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
             <motion.nav
-              className="md:hidden mt-4 pb-4"
+              className="md:hidden mobile-menu"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -158,7 +159,7 @@ function App() {
                 <a
                   key={item.name}
                   href={`#${item.id}`}
-                  className="block py-2 text-foreground hover:text-primary transition-colors duration-300"
+                  className="block text-foreground hover:text-primary transition-colors duration-300 font-medium"
                   onClick={(e) => {
                     e.preventDefault();
                     setIsMenuOpen(false);
