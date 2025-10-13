@@ -92,6 +92,7 @@
   #inicio {
     min-height: 100vh !important;
     height: auto;
+    overflow-x: hidden; /* Adicionado para corrigir o problema de layout em mobile */
   }
   
   /* Mobile menu improvements */
