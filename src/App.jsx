@@ -16,7 +16,7 @@ import { initAllTracking, trackButtonClick, trackContactClick, trackSectionView 
 
 // Import images
 import logoSalveBranco from './assets/images/logo_salve_branco.png'
-import heroImage from './assets/images/FFF99.png'
+// import heroImage from './assets/images/FFF99.png' // Imagem substituída por vídeo
 import sustainabilityImage1 from './assets/images/s_170525.png'
 import sustainabilityImage2 from './assets/images/s_240525.png'
 import sustainabilityImage3 from './assets/images/s_290525.png'
@@ -179,15 +179,27 @@ function App() {
 
       {/* Hero Section */}
       <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Background Image with Parallax Effect */}
+        {/* Background Video with Parallax Effect */}
         <div 
           ref={parallaxRef}
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 overflow-hidden"
           style={{ 
-            backgroundImage: `url(${heroImage})`,
             transform: `translateY(${parallaxOffset}px)`
           }}
-        ></div>
+        >
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto object-cover transform -translate-x-1/2 -translate-y-1/2"
+            poster="/video_hero_poster.jpg" // Adicionar um poster para SEO e fallback
+          >
+            <source src="/video_hero.webm" type="video/webm" />
+            <source src="/video_hero.mp4" type="video/mp4" />
+            Seu navegador não suporta a tag de vídeo.
+          </video>
+        </div>
         
         {/* Dark Overlay for Better Contrast - Fixed to viewport height */}
         {/* <div className="fixed top-0 left-0 w-full h-screen bg-black/60 pointer-events-none" style={{ zIndex: 1 }}></div> */}
