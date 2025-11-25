@@ -16,7 +16,8 @@ import { initAllTracking, trackButtonClick, trackContactClick, trackSectionView 
 
 // Import images
 import logoSalveBranco from './assets/images/logo_salve_branco.png'
-// import heroImage from './assets/images/FFF99.png' // Imagem substituída por vídeo
+import heroImage from './assets/images/FFF99.png'
+import heroVideo from './assets/Fundo_Site.mp4'
 import sustainabilityImage1 from './assets/images/s_170525.png'
 import sustainabilityImage2 from './assets/images/s_240525.png'
 import sustainabilityImage3 from './assets/images/s_290525.png'
@@ -177,26 +178,24 @@ function App() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section
       <section id="inicio" className="min-h-screen flex items-center justify-center relative overflow-hidden">
         {/* Background Video with Parallax Effect */}
         <div 
           ref={parallaxRef}
-          className="absolute inset-0 overflow-hidden"
+          className="hero-video-container"
           style={{ 
             transform: `translateY(${parallaxOffset}px)`
           }}
         >
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto object-cover transform -translate-x-1/2 -translate-y-1/2"
-            poster="/video_hero_poster.jpg" // Adicionar um poster para SEO e fallback
+          <video
+            autoPlay
+            onEnded={(e) => { e.target.pause(); }}
+            muted
+            playsInline
+            className="hero-video"
           >
-            <source src="/video_hero.webm" type="video/webm" />
-            <source src="/video_hero.mp4" type="video/mp4" />
+            <source src={heroVideo} type="video/mp4" />
             Seu navegador não suporta a tag de vídeo.
           </video>
         </div>
@@ -280,8 +279,7 @@ function App() {
           <div className="w-6 h-10 border-2 border-white rounded-full flex justify-center">
             <div className="w-1 h-3 bg-white rounded-full mt-2"></div>
           </div>
-        </motion.div>
-      </section>
+</motion.div>
 
       {/* About Section */}
       <section id="sobre" className="section-padding bg-background">
